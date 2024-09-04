@@ -1,10 +1,11 @@
 import Image from "next/image";
-import { Inter } from "next/font/google";
+
 import { BsBookmark, BsEnvelope, BsTwitter } from "react-icons/bs";
 import React from "react";
 import { BiBell, BiHash, BiHomeCircle, BiUser } from "react-icons/bi";
 import FeedCard from "@/components/FeedCard";
-const inter = Inter({ subsets: ["latin"] });
+import { SlOptions } from "react-icons/sl";
+
 interface TwitterSidebarButtons {
   title : string
   icon : React.ReactNode
@@ -34,18 +35,22 @@ const sidebarMenuItems : TwitterSidebarButtons [] = [
   {
     title : "Profile",
     icon : <BiUser/> 
+  },
+  {
+    title : "More Options",
+    icon : <SlOptions/> 
   }
 ]
 
 export default function Home() {
   return (
-    <div className={inter.className}>
+    <div >
       <div className="grid grid-cols-12 h-screen w-screen px-56 ">
-        <div className="col-span-3  pt-8">
-          <div className="text-4xl h-fit w-fit hover:bg-gray-800 rounded-full p-4 cursor-pointer transition-all">
+        <div className="col-span-3 pl-14 pt-8">
+          <div className=" text-4xl h-fit w-fit hover:bg-gray-800 rounded-full p-4 cursor-pointer transition-all">
             <BsTwitter className=" "/>
           </div>
-          <div className="px-2 mt-4 text-2xl pr-4">
+          <div className=" mt-4 text-xl pr-4">
             <ul>
             {sidebarMenuItems.map( item => <li className="w-fit px-5 py-2 flex justify-start items-center gap-4 rounded-full transition-all hover:bg-gray-800" key={item.title}><span>{item.icon}</span><span>{item.title}</span></li>)}
             </ul>
@@ -54,10 +59,18 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="col-span-6 border-r-[1px]  border-l-[1px] border-gray-400">
+        <div className="col-span-5 border-r-[1px]  border-l-[1px] h-screen  overflow-auto noscrollbar border-gray-600 ">
             <FeedCard/>
+            <FeedCard/>
+            <FeedCard/>
+            <FeedCard/>
+            <FeedCard/>
+            <FeedCard/>
+            <FeedCard/>
+            <FeedCard/>
+
         </div>
-        <div className="col-span-3">
+        <div className="col-span-4">
           
         </div>  
       </div>
