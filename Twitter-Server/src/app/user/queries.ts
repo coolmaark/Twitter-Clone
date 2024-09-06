@@ -1,5 +1,6 @@
 export const queries = `#graphql
+    verifyGoogleToken(token: String!): String
+    getCurrentUser: User
 
-    verifyGoogleToken(token:String!):String
-
-`
+    getUserById(id: ID!): User
+`;
