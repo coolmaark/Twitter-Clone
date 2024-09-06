@@ -5,82 +5,107 @@ import React, { useCallback } from "react";
 import { BiBell, BiHash, BiHomeCircle, BiUser } from "react-icons/bi";
 import FeedCard from "@/components/FeedCard";
 import { SlOptions } from "react-icons/sl";
-import { GoogleLogin } from "@react-oauth/google";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import toast from "react-hot-toast";
+import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
+import { graphqlClient } from "../client/api";
+import { useCurrentUser } from "../hooks/user";
 interface TwitterSidebarButtons {
-  title : string
-  icon : React.ReactNode
+  title: string;
+  icon: React.ReactNode;
 }
 
-const sidebarMenuItems : TwitterSidebarButtons [] = [
+const sidebarMenuItems: TwitterSidebarButtons[] = [
   {
-    title : "Home",
-    icon : <BiHomeCircle/>
+    title: "Home",
+    icon: <BiHomeCircle />,
   },
   {
-    title : "Explore",
-    icon : <BiHash/>
+    title: "Explore",
+    icon: <BiHash />,
   },
   {
-    title : "Notifications",
-    icon : <BiBell/>
+    title: "Notifications",
+    icon: <BiBell />,
   },
   {
-    title : "Messages",
-    icon : <BsEnvelope/>
+    title: "Messages",
+    icon: <BsEnvelope />,
   },
   {
-    title : "Bookmarks",
-    icon : <BsBookmark/> 
+    title: "Bookmarks",
+    icon: <BsBookmark />,
   },
   {
-    title : "Profile",
-    icon : <BiUser/> 
+    title: "Profile",
+    icon: <BiUser />,
   },
   {
-    title : "More Options",
-    icon : <SlOptions/> 
-  }
-]
+    title: "More Options",
+    icon: <SlOptions />,
+  },
+];
 
 export default function Home() {
-
-  const handLoginWithGoogle = useCallback((cred : CredentialResponse) =>{
-    
-  },[])
+  const { user } = useCurrentUser();
+  console.log(user);
+  const handLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
+    const googleToken = cred.credential;
+    if (!googleToken) return toast.error("Google Token Not Found");
+    const { verifyGoogleToken } = await graphqlClient.request(
+      verifyUserGoogleTokenQuery,
+      { token: googleToken }
+    );
+    toast.success("Verification Sucess");
+    console.log(verifyGoogleToken);
+    if (verifyGoogleToken)
+      window.localStorage.setItem("_twitter_token", verifyGoogleToken);
+  }, []);
 
   return (
-    <div >
+    <div>
       <div className="grid grid-cols-12 h-screen w-screen px-56 ">
         <div className="col-span-3 pl-14 pt-8">
           <div className=" text-4xl h-fit w-fit hover:bg-gray-800 rounded-full p-4 cursor-pointer transition-all">
-            <BsTwitter className=" "/>
+            <BsTwitter className=" " />
           </div>
           <div className=" mt-4 text-xl pr-4">
             <ul>
-            {sidebarMenuItems.map( item => <li className="w-fit px-5 py-2 flex justify-start items-center gap-4 rounded-full transition-all hover:bg-gray-800" key={item.title}><span>{item.icon}</span><span>{item.title}</span></li>)}
+              {sidebarMenuItems.map((item) => (
+                <li
+                  className="w-fit px-5 py-2 flex justify-start items-center gap-4 rounded-full transition-all hover:bg-gray-800"
+                  key={item.title}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.title}</span>
+                </li>
+              ))}
             </ul>
             <div className="mt-5 px-10">
-              <button className="bg-[#1d9bf0] font-semibold p-4 text-lg rounded-full w-full ">Tweet</button>
+              <button className="bg-[#1d9bf0] font-semibold p-4 text-lg rounded-full w-full ">
+                Tweet
+              </button>
             </div>
           </div>
         </div>
         <div className="col-span-5 border-r-[1px]  border-l-[1px] h-screen  overflow-auto noscrollbar border-gray-600 ">
-            <FeedCard/>
-            <FeedCard/>
-            <FeedCard/>
-            <FeedCard/>
-            <FeedCard/>
-            <FeedCard/>
-            <FeedCard/>
-            <FeedCard/>
-
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
         </div>
         <div className="col-span-4 p-5">
-          <div className="p-5 bg-slate-700 rounded-lg text-center">
-            <h1 className="my-2 text-2xl">New to Twitter?</h1>
-            <GoogleLogin onSuccess={cred => console.log(cred)}/>
-          </div>
-        </div>  
+          {
+            <div className="p-5 bg-slate-700 rounded-lg text-center">
+              <h1 className="my-2 text-2xl">New to Twitter?</h1>
+              <GoogleLogin onSuccess={handLoginWithGoogle} />
+            </div>
+          }
+        </div>
       </div>
     </div>
   );

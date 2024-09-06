@@ -1,7 +1,33 @@
-import { gql } from "graphql-tag";
+import { graphql } from "../../gql";
 
-export const VERIFY_USER_GOOGLE_TOKEN_QUERY = gql`
+export const verifyUserGoogleTokenQuery = graphql(`
+  #graphql
   query VerifyUserGoogleToken($token: String!) {
     verifyGoogleToken(token: $token)
   }
-`;
+`);
+
+export const getCurrentUserQuery = graphql(`
+  query GetCurrentUser {
+    getCurrentUser {
+      id
+      profileImageURL
+      email
+      firstName
+      LastName
+    }
+  }
+`);
+
+export const getUserByIdQuery = graphql(`
+  #graphql
+  query GetUserById($getUserByIdId: ID!) {
+    getUserById(id: $getUserByIdId) {
+      id
+      firstName
+      LastName
+      email
+      profileImageURL
+    }
+  }
+`);
