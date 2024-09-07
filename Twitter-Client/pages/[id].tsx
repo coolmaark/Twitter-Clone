@@ -48,7 +48,9 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
   console.log("props.userInfo.id:", props.userInfo?.id);
 
     await graphqlClient.request(followUserMutation, { to: props.userInfo?.id });
-    await queryClient.invalidateQueries(["curent-user"]);
+    await queryClient.invalidateQueries({
+      queryKey: ['curent-user'],
+    });
   }, [props.userInfo, queryClient]);
 
   const handleUnfollowUser = useCallback(async () => {
@@ -57,7 +59,9 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
     await graphqlClient.request(unfollowUserMutation, {
       to: props.userInfo?.id,
     });
-    await queryClient.invalidateQueries(["curent-user"]);
+    await queryClient.invalidateQueries({
+      queryKey: ['curent-user'],
+    });
   }, [props.userInfo?.id, queryClient]);
 
   return (
@@ -68,7 +72,7 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
             <BsArrowLeftShort className="text-4xl" />
             <div>
               <h1 className="text-2xl font-bold">
-                {props.userInfo?.firstName} {props.userInfo?.lastName}
+                {props.userInfo?.firstName} {props.userInfo?.LastName}
               </h1>
               <h1 className="text-md font-bold text-slate-500">
                 {props.userInfo?.tweets?.length} Tweets
@@ -86,7 +90,7 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
               />
             )}
             <h1 className="text-2xl font-bold mt-5">
-              {props.userInfo?.firstName} {props.userInfo?.lastName}
+              {props.userInfo?.firstName} {props.userInfo?.LastName}
             </h1>
             <div className="flex justify-between items-center">
               <div className="flex gap-4 mt-2 text-sm text-gray-400">
