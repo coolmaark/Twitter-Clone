@@ -9,7 +9,10 @@ type User {
     LastName : String!
     email : String!
     profileImageURL : String
+    follower:[User]
+    following:[User]
 
+    recomendedUsers:[User]  
     tweets: [Tweet]
 }
 
