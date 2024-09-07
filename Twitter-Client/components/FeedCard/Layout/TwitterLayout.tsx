@@ -66,24 +66,19 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
     [user?.id]
   );
 
-  const handleLoginWithGoogle = useCallback(
+  const handLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
       const googleToken = cred.credential;
-      if (!googleToken) return toast.error(`Google token not found`);
-
+      if (!googleToken) return toast.error("Google Token Not Found");
       const { verifyGoogleToken } = await graphqlClient.request(
         verifyUserGoogleTokenQuery,
         { token: googleToken }
       );
-
-      toast.success("Verified Success");
-      // console.log(verifyGoogleToken);
-
+      toast.success("Verification Sucess");
       if (verifyGoogleToken)
-        window.localStorage.setItem("__twitter_token", verifyGoogleToken);
-
+        window.localStorage.setItem("_twitter_token", verifyGoogleToken);
       await queryClient.invalidateQueries({
-        queryKey: ['curent-user'],
+        queryKey: ["curent-user"],
       });
     },
     [queryClient]
@@ -151,12 +146,12 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
           {!user ? (
             <div className="p-5 bg-slate-700 rounded-lg">
               <h1 className="my-2 text-2xl">New to Twitter?</h1>
-              <GoogleLogin onSuccess={handleLoginWithGoogle} />
+              <GoogleLogin onSuccess={handLoginWithGoogle} />
             </div>
           ) : (
             <div className="px-4 py-3 bg-slate-800 rounded-lg">
               <h1 className=" my-2 text-2xl mb-5">Users you may know</h1>
-              {/* {user?.recommendedUsers?.map((el) => (
+              {user?.recomendedUsers?.map((el) => (
                 <div className="flex items-center gap-3 mt-2" key={el?.id}>
                   {el?.profileImageURL && (
                     <Image
@@ -179,7 +174,7 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
                     </Link>
                   </div>
                 </div>
-              ))} */}
+              ))}
             </div>
           )}
         </div>
