@@ -83,7 +83,9 @@ export default function Home(props: HomeProps) {
       toast.success("Verification Sucess");
       if (verifyGoogleToken)
         window.localStorage.setItem("_twitter_token", verifyGoogleToken);
-      await queryClient.invalidateQueries(["curent-user"]);
+      await queryClient.invalidateQueries({
+        queryKey: ['curent-user'],
+      });
     },
     [queryClient]
   );

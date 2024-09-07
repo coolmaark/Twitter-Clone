@@ -11,7 +11,7 @@ export const useCreateTweet = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (payload: CreateTweetInput) => {
+    mutationFn: async (payload: CreateTweetData) => {
       if (!createTweetMutation) {
         throw new Error("Invalid mutation document");
       }
@@ -21,7 +21,9 @@ export const useCreateTweet = () => {
       toast.loading("Uploading Tweet", { id: "1" });
     },
     onSuccess: async (payload) => {
-      await queryClient.invalidateQueries(["all-tweets"]);
+      await queryClient.invalidateQueries({
+        queryKey: ['all-tweets'],
+      });
       toast.success("Tweet uploaded successfully", { id: "1" });
     },
     onError: (error: any) => {

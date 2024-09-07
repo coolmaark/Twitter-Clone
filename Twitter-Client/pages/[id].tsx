@@ -23,7 +23,7 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
             <div>
               <h1 className="text-2xl font-bold">Ravi</h1>
               <h1 className="text-md font-bold text-slate-500">
-                {props.user?.tweets?.length} Tweets
+                {props.userInfo?.tweets?.length} Tweets
               </h1>
             </div>
           </nav>

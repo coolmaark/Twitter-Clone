@@ -82,7 +82,9 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
       if (verifyGoogleToken)
         window.localStorage.setItem("__twitter_token", verifyGoogleToken);
 
-      await queryClient.invalidateQueries(["curent-user"]);
+      await queryClient.invalidateQueries({
+        queryKey: ['curent-user'],
+      });
     },
     [queryClient]
   );
@@ -154,7 +156,7 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
           ) : (
             <div className="px-4 py-3 bg-slate-800 rounded-lg">
               <h1 className=" my-2 text-2xl mb-5">Users you may know</h1>
-              {user?.recommendedUsers?.map((el) => (
+              {/* {user?.recommendedUsers?.map((el) => (
                 <div className="flex items-center gap-3 mt-2" key={el?.id}>
                   {el?.profileImageURL && (
                     <Image
@@ -177,7 +179,7 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
                     </Link>
                   </div>
                 </div>
-              ))}
+              ))} */}
             </div>
           )}
         </div>
