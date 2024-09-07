@@ -1,8 +1,14 @@
 import Image from "next/image";
 
 import { BsBookmark, BsEnvelope, BsTwitter } from "react-icons/bs";
-import React, { useCallback } from "react";
-import { BiBell, BiHash, BiHomeCircle, BiUser } from "react-icons/bi";
+import React, { useCallback, useState } from "react";
+import {
+  BiBell,
+  BiHash,
+  BiHomeCircle,
+  BiImageAlt,
+  BiUser,
+} from "react-icons/bi";
 import FeedCard from "@/components/FeedCard";
 import { SlOptions } from "react-icons/sl";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
@@ -10,6 +16,12 @@ import toast from "react-hot-toast";
 import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { graphqlClient } from "../client/api";
 import { useCurrentUser } from "../hooks/user";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
+import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
+import { Tweet } from "@/gql/graphql";
+import Twitterlayout from "@/components/FeedCard/Layout/TwitterLayout";
+import { GetServerSideProps } from "next";
+import { getAllTweetQuery } from "@/graphql/query/tweet";
 interface TwitterSidebarButtons {
   title: string;
   icon: React.ReactNode;
@@ -45,68 +57,104 @@ const sidebarMenuItems: TwitterSidebarButtons[] = [
     icon: <SlOptions />,
   },
 ];
-
-export default function Home() {
+interface HomeProps {
+  tweets?: Tweet[];
+}
+export default function Home(props: HomeProps) {
   const { user } = useCurrentUser();
-  console.log(user);
-  const handLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
-    const googleToken = cred.credential;
-    if (!googleToken) return toast.error("Google Token Not Found");
-    const { verifyGoogleToken } = await graphqlClient.request(
-      verifyUserGoogleTokenQuery,
-      { token: googleToken }
-    );
-    toast.success("Verification Sucess");
-    console.log(verifyGoogleToken);
-    if (verifyGoogleToken)
-      window.localStorage.setItem("_twitter_token", verifyGoogleToken);
+  const { mutate } = useCreateTweet();
+  const queryClient = useQueryClient();
+  const [content, setContent] = useState("");
+  // console.log(user);
+  const handleSelectImage = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
   }, []);
+  const handLoginWithGoogle = useCallback(
+    async (cred: CredentialResponse) => {
+      const googleToken = cred.credential;
+      if (!googleToken) return toast.error("Google Token Not Found");
+      const { verifyGoogleToken } = await graphqlClient.request(
+        verifyUserGoogleTokenQuery,
+        { token: googleToken }
+      );
+      toast.success("Verification Sucess");
+      if (verifyGoogleToken)
+        window.localStorage.setItem("_twitter_token", verifyGoogleToken);
+      await queryClient.invalidateQueries(["curent-user"]);
+    },
+    [queryClient]
+  );
+
+  const handleCreateTweet = useCallback(async () => {
+    await mutate({
+      content,
+    });
+  }, [mutate, content]);
 
   return (
     <div>
-      <div className="grid grid-cols-12 h-screen w-screen px-56 ">
-        <div className="col-span-3 pl-14 pt-8">
-          <div className=" text-4xl h-fit w-fit hover:bg-gray-800 rounded-full p-4 cursor-pointer transition-all">
-            <BsTwitter className=" " />
-          </div>
-          <div className=" mt-4 text-xl pr-4">
-            <ul>
-              {sidebarMenuItems.map((item) => (
-                <li
-                  className="w-fit px-5 py-2 flex justify-start items-center gap-4 rounded-full transition-all hover:bg-gray-800"
-                  key={item.title}
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.title}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-5 px-10">
-              <button className="bg-[#1d9bf0] font-semibold p-4 text-lg rounded-full w-full ">
-                Tweet
-              </button>
+      <Twitterlayout>
+        <div>
+          <div className="border border-r-0 border-l-0 border-b-0 border-gray-600 p-5 hover:bg-slate-900 transition-all cursor-pointer">
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-1">
+                {user?.profileImageURL && (
+                  <Image
+                    className="rounded-full"
+                    src={user?.profileImageURL}
+                    alt="user-image"
+                    height={50}
+                    width={50}
+                  />
+                )}
+              </div>
+              <div className="col-span-11">
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="w-full bg-transparent text-xl px-3 border-b border-slate-700"
+                  placeholder="What's happening?"
+                  rows={3}
+                ></textarea>
+                {/* {imageURL && (
+                  <Image
+                    src={imageURL}
+                    alt="tweet-image"
+                    width={300}
+                    height={300}
+                  />
+                )} */}
+                <div className="mt-2 flex justify-between items-center">
+                  <BiImageAlt onClick={handleSelectImage} className="text-xl" />
+                  <button
+                    onClick={handleCreateTweet}
+                    className="bg-[#1d9bf0] font-semibold text-sm py-2 px-4 rounded-full"
+                  >
+                    Tweet
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="col-span-5 border-r-[1px]  border-l-[1px] h-screen  overflow-auto noscrollbar border-gray-600 ">
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-        </div>
-        <div className="col-span-4 p-5">
-          {
-            <div className="p-5 bg-slate-700 rounded-lg text-center">
-              <h1 className="my-2 text-2xl">New to Twitter?</h1>
-              <GoogleLogin onSuccess={handLoginWithGoogle} />
-            </div>
-          }
-        </div>
-      </div>
+        {props.tweets?.map((tweet) =>
+          tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null
+        )}
+      </Twitterlayout>
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async (
+  context
+) => {
+  const allTweets = await graphqlClient.request(getAllTweetQuery);
+  return {
+    props: {
+      tweets: allTweets.getAllTweets as Tweet[],
+    },
+  };
+};
