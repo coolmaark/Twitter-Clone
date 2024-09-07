@@ -6,6 +6,8 @@ type User {
     LastName : String!
     email : String!
     profileImageURL : String
+
+    tweets: [Tweet]
 }
 
 `;

@@ -24,7 +24,6 @@ const queries = {
     }),
     getCurrentUser: (parent, args, contextValue) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
-        console.log(contextValue);
         const id = (_a = contextValue.user) === null || _a === void 0 ? void 0 : _a.id;
         if (!id)
             return null;
@@ -33,4 +32,9 @@ const queries = {
     }),
     getUserById: (parent_1, _a, ctx_1) => __awaiter(void 0, [parent_1, _a, ctx_1], void 0, function* (parent, { id }, ctx) { return user_1.default.getUserById(id); }),
 };
-exports.resolvers = { queries };
+const extraResolvers = {
+    User: {
+        tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+    },
+};
+exports.resolvers = { queries, extraResolvers };
